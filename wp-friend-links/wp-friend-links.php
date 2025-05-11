@@ -98,7 +98,6 @@ function wfl_display_friend_links($atts) {
         $output .= '<p>暂无友情链接</p>';
     }
     
-    $output .= '<p style="text-align: center;font-size:15px;font-color: #96CDCD">该插件由<a href="https://github.com/1999684/argon-plugins">ZTGD</a>制作</p>';
     $output .= '</div>'; // .friend-links-container
     
     // 添加PJAX支持的脚本
