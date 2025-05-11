@@ -8,14 +8,12 @@
  * Text Domain: wp-friend-links
  */
 
-// 如果直接访问此文件，则中止执行
 if (!defined('ABSPATH')) {
     exit;
 }
 
 // 获取友链数据
 function wfl_get_friend_links($args = array()) {
-    // 检查是否有缓存
     $cache_key = 'wfl_friend_links_data';
     $cache_time = get_option('wfl_cache_time', 3600); // 默认缓存1小时
     
@@ -25,7 +23,6 @@ function wfl_get_friend_links($args = array()) {
         return $cached_data;
     }
     
-    // 合并默认参数
     $default_args = array(
         'orderby' => 'name',
         'order' => 'ASC',
@@ -35,14 +32,12 @@ function wfl_get_friend_links($args = array()) {
     
     $args = wp_parse_args($args, $default_args);
     
-    // 构建查询参数
     $query_args = array(
         'orderby' => $args['orderby'],
         'order' => $args['order'],
         'limit' => $args['limit']
     );
     
-    // 如果指定了分类
     if (!empty($args['category'])) {
         $category = get_term_by('name', $args['category'], 'link_category');
         if ($category) {
@@ -50,10 +45,8 @@ function wfl_get_friend_links($args = array()) {
         }
     }
     
-    // 获取友链
     $links = get_bookmarks($query_args);
     
-    // 缓存结果
     if ($cache_time > 0) {
         set_transient($cache_key, $links, $cache_time);
     }
@@ -61,9 +54,7 @@ function wfl_get_friend_links($args = array()) {
     return $links;
 }
 
-// 前端展示逻辑
 function wfl_display_friend_links($atts) {
-    // 解析短代码属性
     $atts = shortcode_atts(array(
         'orderby' => 'name',
         'order' => 'ASC',
@@ -71,7 +62,6 @@ function wfl_display_friend_links($atts) {
         'category' => '',
     ), $atts, 'friend_links');
     
-    // 确保样式已加载
     wp_enqueue_style('wfl-style');
     
     $cards_per_row = get_option('wfl_cards_per_row', 3);
@@ -98,9 +88,8 @@ function wfl_display_friend_links($atts) {
         $output .= '<p>暂无友情链接</p>';
     }
     
-    $output .= '</div>'; // .friend-links-container
+    $output .= '</div>';
     
-    // 添加PJAX支持的脚本
     $output .= '<script>
     (function(){
         function initFriendLinksAnimation() {
@@ -127,9 +116,8 @@ function wfl_display_friend_links($atts) {
     
     return $output;
 }
-add_shortcode('friend_links', 'wfl_display_friend_links'); // 注册短代码
+add_shortcode('friend_links', 'wfl_display_friend_links');
 
-// 添加插件设置页面
 function wfl_add_settings_page() {
     add_options_page(
         '友情链接设置',
@@ -141,7 +129,6 @@ function wfl_add_settings_page() {
 }
 add_action('admin_menu', 'wfl_add_settings_page');
 
-// 设置页面渲染
 function wfl_render_settings_page() {
     $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'settings';
     ?>
@@ -263,15 +250,12 @@ function wfl_cache_time_callback() {
     echo '<p class="description">设置友链数据缓存的时间（秒），设置为0则禁用缓存。默认3600秒（1小时）</p>';
 }
 
-// 添加样式
 function wfl_enqueue_styles() {
-    // 确保assets/css目录存在
     $css_dir = plugin_dir_path(__FILE__) . 'assets/css';
     if (!file_exists($css_dir)) {
         wp_mkdir_p($css_dir);
     }
     
-    // 创建CSS文件（如果不存在）
     $css_file = $css_dir . '/friend-links.css';
     if (!file_exists($css_file)) {
         $css_content = '/* 友链样式 */
@@ -409,7 +393,6 @@ function wfl_enqueue_styles() {
         file_put_contents($css_file, $css_content);
     }
     
-    // 使用版本号避免缓存问题
     $version = filemtime($css_file);
     if (!$version) $version = '1.0.0';
     
@@ -420,12 +403,10 @@ function wfl_enqueue_styles() {
         $version
     );
     
-    // 直接加载样式，不再依赖短代码检测
     wp_enqueue_style('wfl-style');
 }
 add_action('wp_enqueue_scripts', 'wfl_enqueue_styles');
 
-// 添加内联样式以应用每行卡片数设置
 function wfl_add_inline_styles() {
     $cards_per_row = get_option('wfl_cards_per_row', 3);
     $custom_css = "
@@ -469,7 +450,6 @@ add_action('wp_footer', 'wfl_add_pjax_support');
 
 // 创建默认头像文件
 function wfl_create_default_avatar() {
-    // 确保assets/images目录存在
     $images_dir = plugin_dir_path(__FILE__) . 'assets/images';
     if (!file_exists($images_dir)) {
         wp_mkdir_p($images_dir);
@@ -477,9 +457,7 @@ function wfl_create_default_avatar() {
     
     $avatar_path = $images_dir . '/default-avatar.png';
     
-    // 如果默认头像不存在，创建一个简单的默认头像
     if (!file_exists($avatar_path)) {
-        // 尝试复制WordPress默认头像或创建一个简单的头像
         $wp_avatar = ABSPATH . 'wp-includes/images/blank.png';
         if (file_exists($wp_avatar)) {
             copy($wp_avatar, $avatar_path);
