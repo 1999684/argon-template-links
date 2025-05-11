@@ -8,4 +8,4 @@
 
 ## 演示
 
-![](https://github.com/1999684/argon-template-links/blob/main/QQ2025511-162010.gif)
+![](/QQ2025511-162010.gif)
